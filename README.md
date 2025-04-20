@@ -306,12 +306,6 @@ export default Example;
 
 ---
 
-## 🙌 Contributing
-
-Feel free to open issues or PRs if you'd like to improve the library or fix bugs. Let's build together!
-
----
-
 ## 📝 License
 
-Licensed under the [MIT license](https://github.com/blencm/shadcn-ui-react/LICENSE.md).
+Licensed under the [MIT license](https://github.com/blencm/shadcn-ui-react/blob/main/LICENSE).
