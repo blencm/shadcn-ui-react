@@ -1,6 +1,6 @@
 {
   "name": "shadcn-ui-react",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "private": false,
   "author": "Bleker Cordova <bleker@gliyen.com>",
   "description": "A collection of components for building beautiful and accessible user interfaces with React and Tailwind CSS.",
