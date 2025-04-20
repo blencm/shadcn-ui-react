@@ -1,6 +1,6 @@
-import React, { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTable } from "../../../src/shared/data-table";
+import React, { useState } from "react";
+import { DataTable } from "../../src/shared/data-table";
 
 type User = {
   id: number;
