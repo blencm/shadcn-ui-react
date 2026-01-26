@@ -18,6 +18,16 @@ pnpm add shadcn-ui-react
 
 ---
 
+### Tailwind IntelliSense (VS Code)
+
+To enable Tailwind CSS IntelliSense to detect classes within `cn(...)` and other utilities:
+
+```bash
+npx shadcn-ui-react init-vscode
+```
+
+---
+
 ## 🚀 Getting Started
 
 ### 1. Import Global Styles
@@ -37,7 +47,9 @@ export default function App() {
   return (
     <div className="p-4">
       <Button variant="default">Click me</Button>
-      <Button loading className="ml-2">Loading</Button>
+      <Button loading className="ml-2">
+        Loading
+      </Button>
     </div>
   );
 }
@@ -65,6 +77,7 @@ export default function App() {
 - `Dialog`
 - `Drawer`
 - `DropdownMenu`
+- `Dropzone`
 - `HoverCard`
 - `Input`
 - `InputOtp`
@@ -138,6 +151,116 @@ export default function App() {
 <Button loading>Loading...</Button>
 ```
 
+---
+
+### ✍️ UiInput
+
+```tsx
+import { UiInput } from "shadcn-ui-react";
+
+export default function Example() {
+  const [name, setName] = React.useState("");
+
+  return (
+    <UiInput
+      htmlFormItemId="name"
+      variant="outline"
+      label="Name"
+      placeholder="Enter name"
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      errorMessage={
+        name.length > 0 && name.trim().length < 2
+          ? "Min 2 characters"
+          : undefined
+      }
+    />
+  );
+}
+```
+
+---
+
+### 🧾 UiSelect
+
+Using `items`:
+
+```tsx
+import { UiSelect } from "shadcn-ui-react";
+
+export default function LanguageSelectItemsDemo() {
+  const [lang, setLang] = React.useState("");
+
+  return (
+    <UiSelect
+      htmlFormItemId="language"
+      label="Language"
+      placeholder="Select a language"
+      value={lang}
+      onChange={setLang}
+      variant="outline"
+      size="md"
+      items={[
+        { label: "Spanish", value: "es" },
+        { label: "English", value: "en" },
+        { label: "Portuguese", value: "pt" },
+        { label: "Chinese", value: "zh" },
+        { label: "Japanese", value: "ja" },
+        { label: "Korean (disabled)", value: "ko", disabled: true },
+      ]}
+      errorMessage={!lang ? "Please select a language." : undefined}
+    />
+  );
+}
+```
+
+Using `children`:
+
+```tsx
+import {
+  UiSelect,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+} from "shadcn-ui-react";
+
+export default function LanguageSelectChildrenDemo() {
+  const [lang, setLang] = React.useState("");
+
+  return (
+    <UiSelect
+      htmlFormItemId="language_children"
+      label="Language (grouped)"
+      placeholder="Select a language"
+      value={lang}
+      onChange={setLang}
+      variant="outline"
+      size="md"
+      errorMessage={!lang ? "Please select a language." : undefined}
+    >
+      <SelectGroup>
+        <SelectLabel>Common</SelectLabel>
+        <SelectItem value="es">Spanish</SelectItem>
+        <SelectItem value="en">English</SelectItem>
+        <SelectItem value="pt">Portuguese</SelectItem>
+
+        <SelectSeparator />
+
+        <SelectLabel>Asia</SelectLabel>
+        <SelectItem value="zh">Chinese</SelectItem>
+        <SelectItem value="ja">Japanese</SelectItem>
+        <SelectItem value="ko" disabled>
+          Korean (disabled)
+        </SelectItem>
+      </SelectGroup>
+    </UiSelect>
+  );
+}
+```
+
+---
+
 ### 🪄 Accordion
 
 ```tsx
@@ -149,11 +272,15 @@ export default function App() {
 </Accordion>
 ```
 
+---
+
 ### ⚠️ Alert
 
 ```tsx
 <Alert>This is an alert message</Alert>
 ```
+
+---
 
 ### 🧾 Form
 
@@ -173,10 +300,14 @@ import {
 import * as z from "zod";
 
 const formSchema = z.object({
-  email: z.string({required_error: "Email is required"}).email({ message: "Enter a valid email address" }),
+  email: z.email({
+    pattern: z.regexes.email,
+    error: "Email is required",
+  }),
   password: z
     .string()
     .min(8, { message: "Password must be at least 8 characters" }),
+  gender: z.enum(["male", "female"]).optional().nullable(),
 });
 
 type UserFormValue = z.infer<typeof formSchema>;
@@ -185,6 +316,7 @@ export default function UserAuthForm() {
   const defaultValues = {
     email: "demo@domain.com",
   };
+
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
     defaultValues,
@@ -200,7 +332,32 @@ export default function UserAuthForm() {
         type="email"
         placeholder="Enter your email"
         label="Email"
+        variant="outline" // outline | soft | ghost | filled | flushed | unstyled | link
+        className="" // your style
       />
+
+      <FormField
+        control={form.control}
+        name="password"
+        type="password"
+        placeholder="Enter password"
+        label="Password"
+        variant="outline" // outline | soft | ghost | filled | flushed | unstyled | link
+        className="" // your style
+      />
+
+      <FormSelect
+        control={form.control}
+        name="gender"
+        label="Gender"
+        variant="outline" // outline | soft | ghost | filled | flushed | unstyled | link
+        className="" // your style
+        items={[
+          { label: "Male", value: "male" },
+          { label: "Female", value: "female" },
+        ]}
+      />
+
       <Button className="ml-auto w-full" type="submit">
         Log In
       </Button>
@@ -209,78 +366,118 @@ export default function UserAuthForm() {
 }
 ```
 
+---
+
 ### 📊 DataTable
 
 ```tsx
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "shadcn-ui-react";
-import { ColumnDef } from "@tanstack/react-table";
 
 type User = {
   id: number;
   name: string;
   email: string;
+  role: "Admin" | "Editor" | "Viewer";
 };
 
 const columns: ColumnDef<User, any>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
+  { accessorKey: "id", header: "ID" },
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <div className="h-2 w-2 rounded-full bg-primary" />
+        <span className="font-medium">{row.original.name}</span>
+      </div>
+    ),
   },
+  { accessorKey: "email", header: "Email" },
   {
-    accessorKey: "email",
-    header: "Email",
+    accessorKey: "role",
+    header: "Role",
+    cell: ({ row }) => (
+      <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs">
+        {row.original.role}
+      </span>
+    ),
   },
 ];
 
 const data: User[] = [
-  { id: 1, name: "John Doe", email: "john@example.com" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com" },
-  { id: 3, name: "Sam Johnson", email: "sam@example.com" },
-  { id: 4, name: "Alice Brown", email: "alice@example.com" },
-  { id: 5, name: "Bob White", email: "bob@example.com" },
-  { id: 6, name: "Charlie Black", email: "charlie@example.com" },
-  { id: 7, name: "Diana Green", email: "diana@example.com" },
-  { id: 8, name: "Eve Blue", email: "eve@example.com" },
-  { id: 9, name: "Frank Yellow", email: "frank@example.com" },
-  { id: 10, name: "Grace Red", email: "grace@example.com" },
+  { id: 1, name: "John Doe", email: "john@example.com", role: "Admin" },
+  { id: 2, name: "Jane Smith", email: "jane@example.com", role: "Editor" },
+  { id: 3, name: "Sam Johnson", email: "sam@example.com", role: "Viewer" },
+  { id: 4, name: "Alice Brown", email: "alice@example.com", role: "Editor" },
+  { id: 5, name: "Bob White", email: "bob@example.com", role: "Viewer" },
+  { id: 6, name: "Charlie Black", email: "charlie@example.com", role: "Admin" },
+  { id: 7, name: "Diana Green", email: "diana@example.com", role: "Viewer" },
+  { id: 8, name: "Eve Blue", email: "eve@example.com", role: "Editor" },
+  { id: 9, name: "Frank Yellow", email: "frank@example.com", role: "Viewer" },
+  { id: 10, name: "Grace Red", email: "grace@example.com", role: "Admin" },
 ];
 
 const Example = () => {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(5);
 
-  const paginatedData = data.slice((page - 1) * perPage, page * perPage);
+  const pageCount = useMemo(() => Math.ceil(data.length / perPage), [perPage]);
 
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handlePageSizeChange = (newPageSize: number) => {
-    setPerPage(newPageSize);
-    setPage(1); // Reset to the first page when page size changes
-  };
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * perPage;
+    const end = page * perPage;
+    return data.slice(start, end);
+  }, [page, perPage]);
 
   return (
-    <div>
-      <h1 className="text-xl font-bold mb-4">Data Table with Pagination</h1>
+    <div className="space-y-4">
+      <div className="space-y-1">
+        <h1 className="text-xl font-bold">DataTable v2</h1>
+        <p className="text-sm text-muted-foreground">
+          Manual pagination + templates + sticky header + accent
+        </p>
+      </div>
+
       <DataTable
         columns={columns}
         data={paginatedData}
-        pageCount={Math.ceil(data.length / perPage)}
+        pageCount={pageCount}
         page={page}
         perPage={perPage}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPerPage(size);
+          setPage(1);
+        }}
+        totalRows={data.length}
+        isRowsSelected={false}
         rowPerPageLabel="Rows per page"
         pageLabel="Page"
         ofLabel="of"
         rowsSelectedLabel="rows selected"
-        emptyData={<div>No data available</div>}
+        emptyData={<div className="py-10 text-center">No data available</div>}
+
+        // ✨ NEW (v0.6.6)
+        template="neo"          // neo | glass | compact | minimal | clean | elevated | grid | cards
+        accent="primary"        // primary | emerald | indigo | rose | amber | zinc
+        stickyHeader={true}
+        headerScroll={false}
+        animate={true}
+        heightClassName="h-[420px]" // Important: Define the height for the ScrollArea to work.
+
+        onClick={(row) => {
+          // demo: click in row
+          console.log("Row clicked:", row);
+        }}
+
+        // optional
+        classNames={{
+          // root: "border-primary/20",
+          // th: "text-[10px]",
+          // td: "py-2",
+        }}
       />
     </div>
   );
