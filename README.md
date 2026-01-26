@@ -503,6 +503,17 @@ export default Example;
 
 ---
 
+## ❤️ Support / Donations
+
+If this project helps you, you can support it:
+
+- GitHub Sponsors: https://github.com/sponsors/blencm
+- Buy Me a Coffee: https://www.buymeacoffee.com/blencm
+
+## Authors
+
+- [@blencm](https://www.github.com/blencm)
+
 ## 📝 License
 
 Licensed under the [MIT license](https://github.com/blencm/shadcn-ui-react/blob/main/LICENSE).
